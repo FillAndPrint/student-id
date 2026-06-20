@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="te">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="pageTitle">Student ID Card Generator</title>
+
+<style>
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f3f4f6;
+  margin: 0;
+  padding: 0;
+  color: #333;
+}
+
+/* ===== Navigation Header ===== */
+.nav-header {
+  background-color: #1e3a8a;
+  color: white;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.btn-nav-home {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: bold;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-right: 15px;
+}
+.btn-nav-home:hover {
+  background-color: rgba(255, 255, 255, 0.25);
+}
+.nav-title {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+h1 {
+  text-align: center;
+  color: #1e3a8a;
+  font-size: 24px;
+  margin-top: 25px;
+  margin-bottom: 25px;
+}
+
+/* ===== Form Styles ===== */
+.form-container {
+  max-width: 650px;
+  margin: 0 auto 40px auto;
+  background: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+.full-width {
+  grid-column: span 2;
+}
+label {
+  font-weight: 600;
+  font-size: 13px;
+  display: block;
+  margin-bottom: 5px;
+  color: #4b5563;
+}
+input, select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+input:focus, select:focus {
+  border-color: #1e3a8a;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+}
+.btn-submit {
+  grid-column: span 2;
+  background-color: #1e3a8a;
+  color: white;
+  padding: 14px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 15px;
+}
+.btn-submit:hover {
+  background-color: #172554;
+}
+
+/* Actions Button */
+.btn-group-actions {
+  display: none;
+  justify-content: center;
+  max-width: 210mm;
+  margin: 20px auto 0 auto;
+}
+.btn-action-print {
+  padding: 12px 35px;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  color: white;
+  background-color: #28a745;
+  min-width: 160px;
+}
+.btn-action-print:hover {
+  background-color: #1e7e34;
+}
+
+/* ===== ID Card Layout ===== */
+#idCardPrintArea {
+  display: none; 
+  max-width: 210mm; 
+  margin: 10px auto 30px auto;
+  background: transparent;
+  box-sizing: border-box;
+}
+.cards-container-box {
+  display: flex;
+  flex-direction: row; 
+  justify-content: center;
+  gap: 10mm;
+  flex-wrap: wrap; 
+}
+
+/* Single Card Box */
+.card-box {
+  width: 95mm;
+  height: 60mm;
+  border: 1.5px solid #1e3a8a;
+  border-radius: 8px;
+  position: relative;
+  box-sizing: border-box;
+  background: #ffffff !important;
+  overflow: hidden;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+
+/* Background Wave */
+.card-background-design {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 18mm;
+  background: linear-gradient(135deg, rgba(30, 58, 138, 0.04) 0%, rgba(59, 130, 246, 0.06) 100%) !important;
+  clip-path: polygon(0 60%, 30% 45%, 70% 65%, 100% 50%, 100% 100%, 0% 100%);
+  pointer-events: none;
+  z-index: 1;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+
+/* Header Section */
+.card-header {
+  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%) !important;
+  position: relative;
+  padding: 4px 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center; 
+  gap: 10px;
+  height: 12mm;
+  box-sizing: border-box;
+  z-index: 2;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+.card-header::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: #ef4444 !important; 
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+.header-text {
+  text-align: center; 
+}
+.header-text h2 {
+  margin: 0;
+  font-size: 11px; 
+  color: #ffffff !important;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  line-height: 1.2;
+}
+.header-text h3 {
+  margin: 1px 0 0 0;
+  font-size: 8.5px; 
+  color: #f3f4f6 !important;
+  font-weight: 500;
+}
+
+/* Card Title Bar */
+.card-title-bar {
+  background: #f8fafc !important;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: #1e3a8a !important;
+  padding: 3px 0;
+  letter-spacing: 0.5px;
+  position: relative;
+  z-index: 2;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+
+/* Content Area */
+.card-body {
+  display: flex;
+  padding: 6px 10px;
+  height: 37mm;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 2;
+}
+.photo-container {
+  width: 22mm;
+  height: 27mm;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  background: #f8fafc !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  z-index: 3;
+  flex-shrink: 0;
+}
+.photo-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.placeholder-text {
+  font-size: 8px;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+/* Details Table */
+.details-container {
+  flex: 1;
+  padding-left: 10px;
+  position: relative;
+  z-index: 3;
+  overflow: hidden;
+}
+.details-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+.details-table td {
+  padding: 1.5px 0; 
+  font-size: 10.5px; 
+  color: #0f172a !important;
+  vertical-align: top;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+.details-table tr.address-row td {
+  white-space: normal !important;
+  word-break: break-word;
+}
+.label-col {
+  font-weight: 700;
+  color: #1e293b !important;
+  width: 32%;
+}
+
+/* QR Code */
+.qr-container {
+  width: 24mm;
+  height: 24mm;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  background: #fff !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 3;
+  flex-shrink: 0;
+}
+.qr-container img {
+  width: 100%;
+  height: 100%;
+}
+
+/* Footer & Signature Section */
+.card-footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 9mm;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 12px;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-top: 1px solid #e2e8f0;
+  font-size: 8.5px;
+  font-weight: 700;
+  color: #334155 !important;
+  z-index: 2;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+.signature-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+.holders-signature-box {
+  width: 20mm;
+  height: 4.5mm;
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1;
+  border-radius: 2px;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+.signature-line {
+  border-top: 1px dashed #475569;
+  padding-top: 1px;
+  min-width: 22mm;
+  text-align: center;
+}
+
+/* ===== PRINT CONFIGURATION ===== */
+@media print {
+  body {
+    background: #ffffff;
+    padding: 0;
+    margin: 0;
+    width: 210mm;
+  }
+  .form-container, h1, .btn-group-actions, .nav-header {
+    display: none !important; 
+  }
+  #idCardPrintArea {
+    display: block !important;
+    margin: 0;
+    padding: 20mm 0; 
+    width: 210mm;
+  }
+  .cards-container-box {
+    display: flex !important;
+    flex-direction: row !important; 
+    justify-content: center !important;
+    gap: 10mm !important; 
+    flex-wrap: nowrap !important; 
+    width: 200mm;
+    margin: 0 auto;
+  }
+  .card-box {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="nav-header">
+  <a class="btn-nav-home" href="https://fillandprint.github.io/">Home</a>
+  <span class="nav-title">Student ID Card Portal</span>
+</div>
+
+<h1 id="mainHeading">Student Identity Card Generator</h1>
+
+<div class="form-container" id="inputFormContainer">
+  <div class="form-grid">
+    <div class="full-width">
+      <label>School / College Name *</label>
+      <input type="text" id="schoolName" value="ZILLA PARISHAD HIGH SCHOOL" placeholder="e.g. Zilla Parishad High School">
+    </div>
+
+    <div class="full-width">
+      <label>School Address / Location *</label>
+      <input type="text" id="schoolLocation" value="ENDAPALLI, DIST: JAGTIAL." placeholder="e.g. Endapalli, Dist: Jagtial.">
+    </div>
+
+    <div class="full-width">
+      <label>Student Name *</label>
+      <input type="text" id="studentName" placeholder="e.g. K. Rahul">
+    </div>
+
+    <div>
+      <label>Father's Name *</label>
+      <input type="text" id="fatherName" placeholder="e.g. K. Narayana">
+    </div>
+
+    <div>
+      <label>Admission / Roll No *</label>
+      <input type="text" id="rollNo" placeholder="e.g. 1024">
+    </div>
+
+    <div>
+      <label>Class / Course *</label>
+      <input type="text" id="studentClass" placeholder="e.g. Class X (A)">
+    </div>
+
+    <div>
+      <label>Date of Birth (D.O.B) *</label>
+      <input type="date" id="dob">
+    </div>
+
+    <div>
+      <label>Blood Group</label>
+      <select id="bloodGrp">
+        <option value="O+">O+</option>
+        <option value="A+">A+</option>
+        <option value="B+">B+</option>
+        <option value="AB+">AB+</option>
+        <option value="O-">O-</option>
+        <option value="A-">A-</option>
+        <option value="B-">B-</option>
+        <option value="AB-">AB-</option>
+      </select>
+    </div>
+
+    <div>
+      <label>Parent Mobile Number *</label>
+      <input type="tel" id="cellNo" pattern="[0-9]*" maxlength="10" placeholder="e.g. 9876543210" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+    </div>
+
+    <div>
+      <label>Academic Year *</label>
+      <input type="text" id="academicYear" value="2026-27" placeholder="e.g. 2026-27">
+    </div>
+
+    <div>
+      <label>Issuing Authority *</label>
+      <select id="authoritySelect">
+        <option value="Principal">Principal</option>
+        <option value="Head Master">Head Master</option>
+        <option value="Head Mistress">Head Mistress</option>
+      </select>
+    </div>
+
+    <div class="full-width">
+      <label>Residential Address *</label>
+      <input type="text" id="resAddress" placeholder="e.g. H.No: 4-12, Main Road, Endapalli.">
+    </div>
+
+    <div class="full-width">
+      <label>Upload Photo</label>
+      <input type="file" id="photoInput" accept="image/*" onchange="previewImage(event)">
+    </div>
+
+    <button class="btn-submit" onclick="generateStudentIDCard()">Generate ID Card Preview</button>
+  </div>
+</div>
+
+<div class="btn-group-actions" id="actionButtonsGroup">
+  <button class="btn-action-print" onclick="triggerSystemPrint()">Print / Save as PDF</button>
+</div>
+
+<div id="idCardPrintArea">
+  <div class="cards-container-box">
+    
+    <!-- FRONT SIDE -->
+    <div class="card-box">
+      <div class="card-background-design"></div>
+      
+      <div class="card-header">
+        <div class="header-text">
+          <h2 id="lblSchoolFront">ZILLA PARISHAD HIGH SCHOOL</h2>
+          <h3 id="lblLocationFront">ENDAPALLI, DIST: JAGTIAL.</h3>
+        </div>
+      </div>
+      <div class="card-title-bar">STUDENT IDENTITY CARD</div>
+      
+      <div class="card-body">
+        <div class="photo-container">
+          <img id="cardPhoto" src="" style="display:none;">
+          <span id="photoPlaceholder" class="placeholder-text">PHOTO</span>
+        </div>
+        <div class="details-container">
+          <table class="details-table">
+            <tr><td class="label-col">Name</td><td>: <span id="lblName"></span></td></tr>
+            <tr><td class="label-col">Father's name</td><td>: <span id="lblFather"></span></td></tr>
+            <tr><td class="label-col">Roll No</td><td>: <span id="lblRoll"></span></td></tr>
+            <tr><td class="label-col">Class</td><td>: <span id="lblClass"></span></td></tr>
+            <tr><td class="label-col">Date of birth</td><td>: <span id="lblDOB"></span></td></tr>
+            <tr><td class="label-col">Blood Group</td><td>: <span id="lblBlood"></span></td></tr>
+          </table>
+        </div>
+      </div>
+      <div class="card-footer">
+        <div class="signature-section">
+          <div class="holders-signature-box"></div>
+          <span>Student's sign</span>
+        </div>
+        <span class="signature-line" id="lblAuthority">Principal</span>
+      </div>
+    </div>
+
+    <!-- BACK SIDE -->
+    <div class="card-box">
+      <div class="card-background-design"></div>
+      
+      <div class="card-header">
+        <div class="header-text">
+          <h2 id="lblSchoolBack">ZILLA PARISHAD HIGH SCHOOL</h2>
+          <h3 id="lblLocationBack">ENDAPALLI, DIST: JAGTIAL.</h3>
+        </div>
+      </div>
+      <div class="card-title-bar">PERSONAL DETAILS</div>
+      
+      <div class="card-body">
+        <div class="qr-container">
+          <img id="cardQR" src="" alt="QR">
+        </div>
+        <div class="details-container" style="padding-left:12px;">
+          <table class="details-table">
+            <tr><td class="label-col">Emergency Cell</td><td>: <span id="lblCell"></span></td></tr>
+            <tr><td class="label-col">Academic Year</td><td>: <span id="lblAcadYear"></span></td></tr>
+            <tr class="address-row" style="font-size: 8.5px;"><td class="label-col">Address</td><td>: <span id="lblResAddr"></span></td></tr>
+          </table>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span style="font-size: 7.5px; color: #dc2626; font-weight: 700;">* If found, please return to the school office.</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let uploadedPhotoData = "";
+
+function previewImage(event) {
+  const reader = new FileReader();
+  reader.onload = function() {
+    uploadedPhotoData = reader.result;
+    document.getElementById('cardPhoto').src = uploadedPhotoData;
+    document.getElementById('cardPhoto').style.display = 'block';
+    document.getElementById('photoPlaceholder').style.display = 'none';
+  }
+  if(event.target.files[0]) {
+    reader.readAsDataURL(event.target.files[0]);
+  }
+}
+
+function formatDateString(dateVal) {
+  if(!dateVal) return '-';
+  const parts = dateVal.split('-');
+  if(parts.length === 3) {
+    return `${parts[2]}-${parts[1]}-${parts[0]}`;
+  }
+  return dateVal;
+}
+
+function generateStudentIDCard() {
+  const schoolVal = document.getElementById('schoolName').value.trim().toUpperCase();
+  const locVal = document.getElementById('schoolLocation').value.trim().toUpperCase();
+  const nameVal = document.getElementById('studentName').value.trim();
+  const fatherVal = document.getElementById('fatherName').value.trim();
+  const rollVal = document.getElementById('rollNo').value.trim();
+  const classVal = document.getElementById('studentClass').value.trim();
+  const dobVal = document.getElementById('dob').value;
+  const cellVal = document.getElementById('cellNo').value.trim();
+  const acadYearVal = document.getElementById('academicYear').value.trim();
+  const authorityVal = document.getElementById('authoritySelect').value;
+  const resAddrVal = document.getElementById('resAddress').value.trim();
+
+  if(!schoolVal || !nameVal || !fatherVal || !rollVal || !classVal || !dobVal || !cellVal || !acadYearVal || !resAddrVal) {
+    alert("దయచేసి నక్షత్ర గుర్తు (*) ఉన్న అన్ని తప్పనిసరి ఫీల్డ్స్ భర్తీ చేయండి.");
+    return;
+  }
+
+  document.title = nameVal ? nameVal.replace(/[^a-zA-Z0-9]/g, "_") + "_StudentID" : "Student_IDCard";
+
+  document.getElementById('lblSchoolFront').textContent = schoolVal;
+  document.getElementById('lblSchoolBack').textContent = schoolVal;
+  document.getElementById('lblLocationFront').textContent = locVal;
+  document.getElementById('lblLocationBack').textContent = locVal;
+
+  document.getElementById('lblName').textContent = nameVal;
+  document.getElementById('lblFather').textContent = fatherVal;
+  document.getElementById('lblRoll').textContent = rollVal;
+  document.getElementById('lblClass').textContent = classVal;
+  document.getElementById('lblDOB').textContent = formatDateString(dobVal);
+  document.getElementById('lblBlood').textContent = document.getElementById('bloodGrp').value;
+  document.getElementById('lblCell').textContent = cellVal;
+  document.getElementById('lblAcadYear').textContent = acadYearVal;
+  document.getElementById('lblAuthority').textContent = authorityVal;
+  document.getElementById('lblResAddr').textContent = resAddrVal;
+
+  // QR string update
+  const qrString = `STUDENT ID CARD\nSchool: ${schoolVal}\nName: ${nameVal}\nRoll No: ${rollVal}\nClass: ${classVal}\nCell: ${cellVal}\nAcademic Year: ${acadYearVal}\nAuthority: ${authorityVal}`;
+  document.getElementById('cardQR').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrString)}`;
+
+  // UI View management
+  document.getElementById('inputFormContainer').style.display = 'none';
+  document.getElementById('mainHeading').style.display = 'none';
+  document.getElementById('idCardPrintArea').style.display = 'block';
+  document.getElementById('actionButtonsGroup').style.display = 'flex';
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function goToHomePage() {
+  document.getElementById('idCardPrintArea').style.display = 'none';
+  document.getElementById('actionButtonsGroup').style.display = 'none';
+  document.getElementById('inputFormContainer').style.display = 'block';
+  document.getElementById('mainHeading').style.display = 'block';
+  
+  document.title = "Student ID Card Generator";
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function triggerSystemPrint() {
+  window.print();
+}
+</script>
+
+</body>
+</html>
