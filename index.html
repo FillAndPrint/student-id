@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title id="pageTitle">Student ID Card Generator</title>
 
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
 <style>
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -55,10 +57,19 @@ h1 {
   margin-bottom: 25px;
 }
 
+.section-title {
+  text-align: center;
+  color: #1e3a8a;
+  font-size: 20px;
+  margin-top: 40px;
+  margin-bottom: 15px;
+  font-weight: bold;
+}
+
 /* ===== Form Styles ===== */
 .form-container {
   max-width: 650px;
-  margin: 0 auto 40px auto;
+  margin: 0 auto 20px auto;
   background: #fff;
   padding: 30px;
   border-radius: 12px;
@@ -92,49 +103,66 @@ input:focus, select:focus {
   outline: none;
   box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
 }
+
+/* ===== Payment & Promo Section ===== */
+.download-action-container {
+  max-width: 650px;
+  margin: 30px auto 60px auto;
+  background: #fff;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  text-align: center;
+}
+.promo-box {
+  display: flex;
+  gap: 10px;
+  max-width: 400px;
+  margin: 0 auto 20px auto;
+}
+.btn-promo {
+  background-color: #4b5563;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.btn-promo:hover {
+  background-color: #374151;
+}
+.promo-message {
+  font-size: 13px;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
 .btn-submit {
-  grid-column: span 2;
   background-color: #1e3a8a;
   color: white;
-  padding: 14px;
+  padding: 14px 30px;
   border: none;
   border-radius: 6px;
   font-size: 16px;
   font-weight: bold;
   cursor: pointer;
-  margin-top: 15px;
+  width: 100%;
+  max-width: 350px;
 }
 .btn-submit:hover {
   background-color: #172554;
 }
-
-/* Actions Button */
-.btn-group-actions {
-  display: none;
-  justify-content: center;
-  max-width: 210mm;
-  margin: 20px auto 0 auto;
-}
-.btn-action-print {
-  padding: 12px 35px;
-  border: none;
-  border-radius: 6px;
-  font-size: 15px;
-  font-weight: bold;
-  cursor: pointer;
-  color: white;
-  background-color: #28a745;
-  min-width: 160px;
-}
-.btn-action-print:hover {
-  background-color: #1e7e34;
+.note-text {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 12px;
 }
 
 /* ===== ID Card Layout ===== */
 #idCardPrintArea {
-  display: none; 
+  display: block; 
   max-width: 210mm; 
-  margin: 10px auto 30px auto;
+  margin: 10px auto 10px auto;
   background: transparent;
   box-sizing: border-box;
 }
@@ -158,6 +186,32 @@ input:focus, select:focus {
   overflow: hidden;
   -webkit-print-color-adjust: exact !important;
   print-color-adjust: exact !important;
+}
+
+/* Secure Preview Watermark */
+.preview-only-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.preview-only-text {
+  color: rgba(220, 38, 38, 0.12);
+  font-size: 34px;
+  font-weight: 900;
+  transform: rotate(-25deg);
+  white-space: nowrap;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-family: 'Arial Black', sans-serif;
+  user-select: none;
 }
 
 /* Background Wave */
@@ -285,7 +339,6 @@ input:focus, select:focus {
 .details-table td {
   padding: 1.5px 0; 
   font-size: 10.5px; 
-  color: #0f172a !important;
   vertical-align: top;
   line-height: 1.25;
   white-space: nowrap;
@@ -295,9 +348,20 @@ input:focus, select:focus {
   word-break: break-word;
 }
 .label-col {
+  font-weight: 500;
+  color: #475569 !important; /* Soft gray for pre-printed labels */
+  width: 35%;
+}
+.colon-col {
+  font-weight: 500;
+  color: #475569 !important;
+  width: 5%;
+  text-align: center;
+}
+.value-col {
   font-weight: 700;
-  color: #1e293b !important;
-  width: 32%;
+  color: #000000 !important; /* Bold black for actual student data */
+  padding-left: 2px;
 }
 
 /* QR Code */
@@ -365,14 +429,20 @@ input:focus, select:focus {
 
 /* ===== PRINT CONFIGURATION ===== */
 @media print {
+  div[class*="eruda"], div[id*="eruda"], div[class*="console"] {
+    display: none !important;
+  }
   body {
     background: #ffffff;
     padding: 0;
     margin: 0;
     width: 210mm;
   }
-  .form-container, h1, .btn-group-actions, .nav-header {
+  .form-container, h1, .nav-header, .section-title, .download-action-container {
     display: none !important; 
+  }
+  .preview-only-overlay {
+    display: none !important;
   }
   #idCardPrintArea {
     display: block !important;
@@ -399,7 +469,7 @@ input:focus, select:focus {
 <body>
 
 <div class="nav-header">
-  <a class="btn-nav-home" href="https://fillandprint.github.io/">Home</a>
+  <button class="btn-nav-home" onclick="goToHomePage()">Home</button>
   <span class="nav-title">Student ID Card Portal</span>
 </div>
 
@@ -409,42 +479,42 @@ input:focus, select:focus {
   <div class="form-grid">
     <div class="full-width">
       <label>School / College Name *</label>
-      <input type="text" id="schoolName" value="ZILLA PARISHAD HIGH SCHOOL" placeholder="e.g. Zilla Parishad High School">
+      <input type="text" id="schoolName" value="ZILLA PARISHAD HIGH SCHOOL" placeholder="e.g. Zilla Parishad High School" oninput="updateLiveCard()">
     </div>
 
     <div class="full-width">
       <label>School Address / Location *</label>
-      <input type="text" id="schoolLocation" value="ARMOOR, DIST: NIZAMABAD." placeholder="e.g. Endapalli, Dist: Jagtial.">
+      <input type="text" id="schoolLocation" value="ARMOOR, DIST: NIZAMABAD." placeholder="e.g. Endapalli, Dist: Jagtial." oninput="updateLiveCard()">
     </div>
 
     <div class="full-width">
       <label>Student Name *</label>
-      <input type="text" id="studentName" placeholder="e.g. K. Rahul">
+      <input type="text" id="studentName" placeholder="e.g. K. Rahul" oninput="updateLiveCard()">
     </div>
 
     <div>
       <label>Father's Name *</label>
-      <input type="text" id="fatherName" placeholder="e.g. K. Narayana">
+      <input type="text" id="fatherName" placeholder="e.g. K. Narayana" oninput="updateLiveCard()">
     </div>
 
     <div>
       <label>Admission / Roll No *</label>
-      <input type="text" id="rollNo" placeholder="e.g. 1024">
+      <input type="text" id="rollNo" placeholder="e.g. 1024" oninput="updateLiveCard()">
     </div>
 
     <div>
       <label>Class / Course *</label>
-      <input type="text" id="studentClass" placeholder="e.g. Class X (A)">
+      <input type="text" id="studentClass" placeholder="e.g. Class X (A)" oninput="updateLiveCard()">
     </div>
 
     <div>
       <label>Date of Birth (D.O.B) *</label>
-      <input type="date" id="dob">
+      <input type="date" id="dob" onchange="updateLiveCard()">
     </div>
 
     <div>
       <label>Blood Group</label>
-      <select id="bloodGrp">
+      <select id="bloodGrp" onchange="updateLiveCard()">
         <option value="O+">O+</option>
         <option value="A+">A+</option>
         <option value="B+">B+</option>
@@ -458,17 +528,17 @@ input:focus, select:focus {
 
     <div>
       <label>Parent Mobile Number *</label>
-      <input type="tel" id="cellNo" pattern="[0-9]*" maxlength="10" placeholder="e.g. 9876543210" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+      <input type="tel" id="cellNo" pattern="[0-9]*" maxlength="10" placeholder="e.g. 9876543210" oninput="this.value = this.value.replace(/[^0-9]/g, ''); updateLiveCard();">
     </div>
 
     <div>
       <label>Academic Year *</label>
-      <input type="text" id="academicYear" value="2026-27" placeholder="e.g. 2026-27">
+      <input type="text" id="academicYear" value="2026-27" placeholder="e.g. 2026-27" oninput="updateLiveCard()">
     </div>
 
     <div>
       <label>Issuing Authority *</label>
-      <select id="authoritySelect">
+      <select id="authoritySelect" onchange="updateLiveCard()">
         <option value="Principal">Principal</option>
         <option value="Head Master">Head Master</option>
         <option value="Head Mistress">Head Mistress</option>
@@ -477,27 +547,23 @@ input:focus, select:focus {
 
     <div class="full-width">
       <label>Residential Address *</label>
-      <input type="text" id="resAddress" placeholder="e.g. H.No: 4-12, Main Road, Armoor.">
+      <input type="text" id="resAddress" placeholder="e.g. H.No: 4-12, Main Road, Armoor." oninput="updateLiveCard()">
     </div>
 
     <div class="full-width">
       <label>Upload Photo</label>
       <input type="file" id="photoInput" accept="image/*" onchange="previewImage(event)">
     </div>
-
-    <button class="btn-submit" onclick="generateStudentIDCard()">Generate ID Card Preview</button>
   </div>
 </div>
 
-<div class="btn-group-actions" id="actionButtonsGroup">
-  <button class="btn-action-print" onclick="triggerSystemPrint()">Print / Save as PDF</button>
-</div>
+<div class="section-title">ID Card Live Preview</div>
 
 <div id="idCardPrintArea">
   <div class="cards-container-box">
     
-    <!-- FRONT SIDE -->
     <div class="card-box">
+      <div class="preview-only-overlay"><div class="preview-only-text">Preview Only</div></div>
       <div class="card-background-design"></div>
       
       <div class="card-header">
@@ -515,12 +581,12 @@ input:focus, select:focus {
         </div>
         <div class="details-container">
           <table class="details-table">
-            <tr><td class="label-col">Name</td><td>: <span id="lblName"></span></td></tr>
-            <tr><td class="label-col">Father's name</td><td>: <span id="lblFather"></span></td></tr>
-            <tr><td class="label-col">Admission/Roll No</td><td>: <span id="lblRoll"></span></td></tr>
-            <tr><td class="label-col">Class</td><td>: <span id="lblClass"></span></td></tr>
-            <tr><td class="label-col">Date of birth</td><td>: <span id="lblDOB"></span></td></tr>
-            <tr><td class="label-col">Blood Group</td><td>: <span id="lblBlood"></span></td></tr>
+            <tr><td class="label-col">Name</td><td class="colon-col">:</td><td class="value-col"><span id="lblName">-</span></td></tr>
+            <tr><td class="label-col">Father's name</td><td class="colon-col">:</td><td class="value-col"><span id="lblFather">-</span></td></tr>
+            <tr><td class="label-col">Admission/Roll No</td><td class="colon-col">:</td><td class="value-col"><span id="lblRoll">-</span></td></tr>
+            <tr><td class="label-col">Class</td><td class="colon-col">:</td><td class="value-col"><span id="lblClass">-</span></td></tr>
+            <tr><td class="label-col">Date of birth</td><td class="colon-col">:</td><td class="value-col"><span id="lblDOB">-</span></td></tr>
+            <tr><td class="label-col">Blood Group</td><td class="colon-col">:</td><td class="value-col"><span id="lblBlood">O+</span></td></tr>
           </table>
         </div>
       </div>
@@ -533,8 +599,8 @@ input:focus, select:focus {
       </div>
     </div>
 
-    <!-- BACK SIDE -->
     <div class="card-box">
+      <div class="preview-only-overlay"><div class="preview-only-text">Preview Only</div></div>
       <div class="card-background-design"></div>
       
       <div class="card-header">
@@ -551,9 +617,9 @@ input:focus, select:focus {
         </div>
         <div class="details-container" style="padding-left:12px;">
           <table class="details-table">
-            <tr><td class="label-col">Parent's Mobike</td><td>: <span id="lblCell"></span></td></tr>
-            <tr><td class="label-col">Academic Year</td><td>: <span id="lblAcadYear"></span></td></tr>
-            <tr class="address-row" style="font-size: 8.5px;"><td class="label-col">Address</td><td>: <span id="lblResAddr"></span></td></tr>
+            <tr><td class="label-col">Parent's Mobile</td><td class="colon-col">:</td><td class="value-col"><span id="lblCell">-</span></td></tr>
+            <tr><td class="label-col">Academic Year</td><td class="colon-col">:</td><td class="value-col"><span id="lblAcadYear">2026-27</span></td></tr>
+            <tr class="address-row" style="font-size: 8.5px;"><td class="label-col">Address</td><td class="colon-col">:</td><td class="value-col"><span id="lblResAddr">-</span></td></tr>
           </table>
         </div>
       </div>
@@ -565,8 +631,25 @@ input:focus, select:focus {
   </div>
 </div>
 
+<div class="download-action-container">
+  <div class="promo-box">
+    <input type="text" id="promoInput" placeholder="Enter Promo Code (e.g. NEW100)">
+    <button class="btn-promo" onclick="applyPromoCode()">Apply</button>
+  </div>
+  <div id="promoMsg" class="promo-message"></div>
+
+  <button class="btn-submit" id="payBtn" onclick="handlePaymentAction()">Pay & Download HD Card (₹20)</button>
+  <div class="note-text">గమనిక: పైన వివరాలు సరిచూసుకున్న తర్వాతే డౌన్లోడ్ బటన్ నొక్కండి.</div>
+</div>
+
 <script>
 let uploadedPhotoData = "";
+let isPromoApplied = false;
+let currentAmount = 2000; // 2000 paise = ₹20
+
+window.onload = function() {
+  updateLiveCard();
+};
 
 function previewImage(event) {
   const reader = new FileReader();
@@ -590,7 +673,7 @@ function formatDateString(dateVal) {
   return dateVal;
 }
 
-function generateStudentIDCard() {
+function updateLiveCard() {
   const schoolVal = document.getElementById('schoolName').value.trim().toUpperCase();
   const locVal = document.getElementById('schoolLocation').value.trim().toUpperCase();
   const nameVal = document.getElementById('studentName').value.trim();
@@ -603,54 +686,91 @@ function generateStudentIDCard() {
   const authorityVal = document.getElementById('authoritySelect').value;
   const resAddrVal = document.getElementById('resAddress').value.trim();
 
-  if(!schoolVal || !nameVal || !fatherVal || !rollVal || !classVal || !dobVal || !cellVal || !acadYearVal || !resAddrVal) {
-    alert("దయచేసి నక్షత్ర గుర్తు (*) ఉన్న అన్ని తప్పనిసరి ఫీల్డ్స్ భర్తీ చేయండి.");
+  document.getElementById('lblSchoolFront').textContent = schoolVal || 'ZILLA PARISHAD HIGH SCHOOL';
+  document.getElementById('lblSchoolBack').textContent = schoolVal || 'ZILLA PARISHAD HIGH SCHOOL';
+  document.getElementById('lblLocationFront').textContent = locVal || 'ARMOOR, DIST: NIZAMABAD.';
+  document.getElementById('lblLocationBack').textContent = locVal || 'ARMOOR, DIST: NIZAMABAD.';
+
+  document.getElementById('lblName').textContent = nameVal || '-';
+  document.getElementById('lblFather').textContent = fatherVal || '-';
+  document.getElementById('lblRoll').textContent = rollVal || '-';
+  document.getElementById('lblClass').textContent = classVal || '-';
+  document.getElementById('lblDOB').textContent = formatDateString(dobVal);
+  document.getElementById('lblBlood').textContent = document.getElementById('bloodGrp').value;
+  document.getElementById('lblCell').textContent = cellVal || '-';
+  document.getElementById('lblAcadYear').textContent = acadYearVal || '2026-27';
+  document.getElementById('lblAuthority').textContent = authorityVal;
+  document.getElementById('lblResAddr').textContent = resAddrVal || '-';
+
+  const qrString = `STUDENT ID CARD\nSchool: ${schoolVal}\nName: ${nameVal || 'N/A'}\nRoll No: ${rollVal || 'N/A'}\nClass: ${classVal || 'N/A'}\nCell: ${cellVal || 'N/A'}`;
+  document.getElementById('cardQR').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrString)}`;
+}
+
+function applyPromoCode() {
+  const code = document.getElementById('promoInput').value.trim().toUpperCase();
+  const msgElement = document.getElementById('promoMsg');
+  const payBtn = document.getElementById('payBtn');
+
+  if(code === "NEW100") {
+    isPromoApplied = true;
+    currentAmount = 0;
+    msgElement.style.color = "#16a34a";
+    msgElement.textContent = "Promo 'NEW100' applied successfully! 100% Discount.";
+    payBtn.textContent = "Download HD Card (FREE)";
+  } else {
+    isPromoApplied = false;
+    currentAmount = 2000;
+    msgElement.style.color = "#dc2626";
+    msgElement.textContent = "Invalid Promo Code.";
+    payBtn.textContent = "Pay & Download HD Card (₹20)";
+  }
+}
+
+function handlePaymentAction() {
+  const schoolVal = document.getElementById('schoolName').value.trim();
+  const nameVal = document.getElementById('studentName').value.trim();
+  const fatherVal = document.getElementById('fatherName').value.trim();
+  const rollVal = document.getElementById('rollNo').value.trim();
+  const classVal = document.getElementById('studentClass').value.trim();
+  const dobVal = document.getElementById('dob').value;
+  const cellVal = document.getElementById('cellNo').value.trim();
+  const resAddrVal = document.getElementById('resAddress').value.trim();
+
+  if(!schoolVal || !nameVal || !fatherVal || !rollVal || !classVal || !dobVal || !cellVal || !resAddrVal) {
+    alert(" * గుర్తు ఉన్న అన్ని ఫీల్డ్స్ తప్పనిసరిగా ఫిల్ చేయండి.");
     return;
   }
 
-  document.title = nameVal ? nameVal.replace(/[^a-zA-Z0-9]/g, "_") + "_StudentID" : "Student_IDCard";
+  document.title = nameVal.replace(/[^a-zA-Z0-9]/g, "_") + "_StudentID";
 
-  document.getElementById('lblSchoolFront').textContent = schoolVal;
-  document.getElementById('lblSchoolBack').textContent = schoolVal;
-  document.getElementById('lblLocationFront').textContent = locVal;
-  document.getElementById('lblLocationBack').textContent = locVal;
-
-  document.getElementById('lblName').textContent = nameVal;
-  document.getElementById('lblFather').textContent = fatherVal;
-  document.getElementById('lblRoll').textContent = rollVal;
-  document.getElementById('lblClass').textContent = classVal;
-  document.getElementById('lblDOB').textContent = formatDateString(dobVal);
-  document.getElementById('lblBlood').textContent = document.getElementById('bloodGrp').value;
-  document.getElementById('lblCell').textContent = cellVal;
-  document.getElementById('lblAcadYear').textContent = acadYearVal;
-  document.getElementById('lblAuthority').textContent = authorityVal;
-  document.getElementById('lblResAddr').textContent = resAddrVal;
-
-  // QR string update
-  const qrString = `STUDENT ID CARD\nSchool: ${schoolVal}\nName: ${nameVal}\nRoll No: ${rollVal}\nClass: ${classVal}\nCell: ${cellVal}\nAcademic Year: ${acadYearVal}\nAuthority: ${authorityVal}`;
-  document.getElementById('cardQR').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrString)}`;
-
-  // UI View management
-  document.getElementById('inputFormContainer').style.display = 'none';
-  document.getElementById('mainHeading').style.display = 'none';
-  document.getElementById('idCardPrintArea').style.display = 'block';
-  document.getElementById('actionButtonsGroup').style.display = 'flex';
-
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (isPromoApplied && currentAmount === 0) {
+    window.print();
+  } else {
+    var options = {
+      "key": "YOUR_RAZORPAY_KEY_ID", 
+      "amount": currentAmount, 
+      "currency": "INR",
+      "name": "FillAndPrint Portal",
+      "description": "Student Identity Card Download Fee",
+      "handler": function (response){
+         alert("Payment Successful! Reference ID: " + response.razorpay_payment_id);
+         window.print();
+      },
+      "prefill": {
+        "name": nameVal,
+        "contact": cellVal
+      },
+      "theme": {
+        "color": "#1e3a8a"
+      }
+    };
+    var rzp1 = new Razorpay(options);
+    rzp1.open();
+  }
 }
 
 function goToHomePage() {
-  document.getElementById('idCardPrintArea').style.display = 'none';
-  document.getElementById('actionButtonsGroup').style.display = 'none';
-  document.getElementById('inputFormContainer').style.display = 'block';
-  document.getElementById('mainHeading').style.display = 'block';
-  
-  document.title = "Student ID Card Generator";
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function triggerSystemPrint() {
-  window.print();
+  window.location.href = "https://fillandprint.github.io";
 }
 </script>
 
